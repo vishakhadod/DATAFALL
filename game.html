@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Cyber Hacker Game</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            color: #00ffcc;
+            font-family: monospace;
+            overflow: hidden;
+        }
+        
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0
+        }
+        
+        #game {
+            position: relative;
+            z-index: 1;
+            width: 100vw;
+            height: 100vh
+        }
+        
+        .word,
+        .boss {
+            position: absolute;
+            font-size: 20px;
+            text-shadow: 0 0 10px #00ffcc
+        }
+        
+        .boss {
+            color: red;
+            font-size: 26px
+        }
+        
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap
+        }
+        
+        #inputBox {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 2
+        }
+        
+        input {
+            background: black;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            font-size: 18px;
+            padding: 12px;
+            width: 70%
+        }
+        
+        button {
+            background: black;
+            color: #00ffcc;
+            border: 2px solid #00ffcc;
+            padding: 10px
+        }
+        
+        #gameOver,
+        #leaderboard {
+            display: none;
+            position: absolute;
+            top: 25%;
+            width: 100%;
+            text-align: center;
+            font-size: 24px
+        }
+    </style>
+</head>
+
+<body>
+
+    <audio id="gameMusic" loop src="cyber-storm-332080.mp3"></audio>
+    <audio id="overMusic" src="last-game-458023.mp3"></audio>
+
+    <canvas id="matrix"></canvas>
+
+    <div id="game">
+        <div id="hud">
+            <div>Score: <span id="score">0</span></div>
+            <div>Time: <span id="time">60</span>s</div>
+            <button onclick="toggleMusic()">🎵</button>
+        </div>
+
+        <div id="gameOver">
+            💀 SYSTEM TERMINATED 💀<br><br> Score: <span id="finalScore"></span><br><br>
+            <button onclick="showLeaderboard()">LEADERBOARD</button>
+            <button onclick="location.reload()">RESTART</button>
+        </div>
+
+        <div id="leaderboard">
+            🏆 LEADERBOARD 🏆<br><br>
+            <div id="scores"></div><br>
+            <button onclick="location.reload()">PLAY AGAIN</button>
+        </div>
+
+        <div id="inputBox">
+            <input id="input" placeholder="type command…">
+            <button onclick="submit()">ENTER</button>
+        </div>
+    </div>
+
+    <script>
+        /* MATRIX */
+        const c = document.getElementById("matrix"),
+            x = c.getContext("2d");
+        c.width = innerWidth;
+        c.height = innerHeight;
+        const ch = "01アイウ",
+            fs = 16,
+            d = Array(c.width / fs | 0).fill(1);
+        setInterval(() => {
+            x.fillStyle = "rgba(0,0,0,.05)";
+            x.fillRect(0, 0, c.width, c.height);
+            x.fillStyle = "#0f0";
+            x.font = fs + "px monospace";
+            d.forEach((y, i) => {
+                x.fillText(ch[Math.random() * ch.length | 0], i * fs, y * fs);
+                d[i] = y * fs > c.height && Math.random() > .975 ? 0 : y + 1
+            })
+        }, 50);
+
+        /* GAME */
+        const cmds = ["scan", "decrypt", "inject", "bypass", "firewall", "access", "override"];
+        const bossCmds = ["rootaccessoverride", "systembreachinject", "decryptfirewallbypass"];
+        let score = 0,
+            time = 60,
+            speed = 1,
+            words = [],
+            boss = null;
+
+        const input = document.getElementById("input");
+        const gameMusic = document.getElementById("gameMusic");
+        const overMusic = document.getElementById("overMusic");
+
+        document.addEventListener("touchstart", () => {
+            gameMusic.volume = .4;
+            gameMusic.play()
+        }, {
+            once: true
+        });
+
+        function toggleMusic() {
+            gameMusic.paused ? gameMusic.play() : gameMusic.pause()
+        }
+
+        function spawnWord() {
+            const w = document.createElement("div");
+            w.className = "word";
+            w.textContent = cmds[Math.random() * cmds.length | 0];
+            w.style.left = Math.random() * 80 + "vw";
+            w.style.top = "0";
+            game.appendChild(w);
+            words.push(w);
+        }
+
+        function spawnBoss() {
+            boss = document.createElement("div");
+            boss.className = "boss";
+            boss.textContent = bossCmds[Math.random() * bossCmds.length | 0];
+            boss.style.left = "20vw";
+            boss.style.top = "20vh";
+            game.appendChild(boss);
+        }
+
+        function move() {
+            words.forEach(w => {
+                w.style.top = (parseFloat(w.style.top) + speed) + "px";
+                if (parseFloat(w.style.top) > innerHeight - 140) endGame();
+            });
+        }
+
+        function submit() {
+            let val = input.value.trim();
+            words.forEach((w, i) => {
+                if (w.textContent === val) {
+                    w.remove();
+                    words.splice(i, 1);
+                    score += 10;
+                    speed += .15;
+                }
+            });
+            if (boss && val === boss.textContent) {
+                boss.remove();
+                boss = null;
+                score += 50;
+            }
+            input.value = "";
+            scoreEl.textContent = score;
+        }
+
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter") submit()
+        });
+
+        function endGame() {
+            gameOver.style.display = "block";
+            finalScore.textContent = score;
+            saveScore(score);
+            gameMusic.pause();
+            overMusic.play();
+            clearInterval(spawnLoop);
+            clearInterval(gameLoop);
+            clearInterval(timerLoop);
+        }
+
+        function saveScore(s) {
+            let arr = JSON.parse(localStorage.getItem("scores") || "[]");
+            arr.push(s);
+            arr.sort((a, b) => b - a);
+            arr = arr.slice(0, 5);
+            localStorage.setItem("scores", JSON.stringify(arr));
+        }
+
+        function showLeaderboard() {
+            gameOver.style.display = "none";
+            leaderboard.style.display = "block";
+            let arr = JSON.parse(localStorage.getItem("scores") || "[]");
+            scores.innerHTML = arr.map((s, i) => `#${i+1} → ${s}`).join("<br>");
+        }
+
+        const scoreEl = document.getElementById("score");
+        const finalScore = document.getElementById("finalScore");
+
+        const spawnLoop = setInterval(spawnWord, 1800);
+        const gameLoop = setInterval(move, 50);
+        const timerLoop = setInterval(() => {
+            time--;
+            document.getElementById("time").textContent = time;
+            if (time % 30 === 0) spawnBoss();
+            if (time <= 0) endGame();
+        }, 1000);
+    </script>
+</body>
+
+</html>

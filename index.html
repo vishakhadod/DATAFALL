@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATAFALL | Cyber Hacker Game</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+        
+        body {
+            background: black;
+            color: #00ffcc;
+            font-family: 'Orbitron', monospace;
+            overflow-x: hidden;
+        }
+        /* MATRIX BACKGROUND */
+        
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+        }
+        /* HERO */
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            letter-spacing: 6px;
+            text-shadow: 0 0 20px #00ffcc;
+        }
+        
+        .tagline {
+            margin: 20px 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            text-decoration: none;
+            transition: .3s;
+        }
+        
+        .btn:hover {
+            background: #00ffcc;
+            color: black;
+        }
+        /* SECTIONS */
+        
+        section {
+            padding: 80px 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            border: 1px solid #00ffcc;
+            padding: 20px;
+            background: rgba(0, 255, 204, 0.05);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <!-- HERO -->
+    <div class="hero">
+        <h1>DATAFALL</h1>
+        <div class="tagline">
+            Hack the system. Survive the fall.
+        </div>
+
+        <div class="buttons">
+            <a href="C:/Vishakha/G_V/DATAFALL/game.html" class="btn">▶ PLAY GAME</a>
+            <a href="#features" class="btn">FEATURES</a>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section id="features">
+        <h2>GAME FEATURES</h2>
+        <div class="features">
+            <div class="card">🧠 Typing-based hacking combat</div>
+            <div class="card">🔫 Shooting + hacking hybrid gameplay</div>
+            <div class="card">👾 Boss levels with system overrides</div>
+            <div class="card">🌐 Cyber Matrix-style visuals</div>
+            <div class="card">🎵 Dark synthwave soundtrack</div>
+            <div class="card">📱 Mobile + Desktop support</div>
+        </div>
+    </section>
+
+    <!-- STORY -->
+    <section>
+        <h2>STORY</h2>
+        <p style="text-align:center;line-height:1.6">
+            The digital world is collapsing.<br> Firewalls are alive. Systems are hostile.<br><br> You are the last operator.<br>
+            <strong>Initiate DATAFALL.</strong>
+        </p>
+    </section>
+
+    <footer>
+        © 2026 DATAFALL | Cyberpunk Indie Game
+    </footer>
+
+    <script>
+        /* MATRIX EFFECT */
+        const c = document.getElementById("matrix"),
+            x = c.getContext("2d");
+        c.width = innerWidth;
+        c.height = innerHeight;
+        const letters = "01アネブ";
+        const fs = 16;
+        const cols = c.width / fs;
+        const drops = Array(cols).fill(1);
+
+        setInterval(() => {
+            x.fillStyle = "rgba(0,0,0,0.05)";
+            x.fillRect(0, 0, c.width, c.height);
+            x.fillStyle = "#0f0";
+            x.font = fs + "px monospace";
+            drops.forEach((y, i) => {
+                x.fillText(letters[Math.random() * letters.length | 0], i * fs, y * fs);
+                drops[i] = y * fs > c.height && Math.random() > 0.975 ? 0 : y + 1;
+            });
+        }, 50);
+
+        window.onresize = () => {
+            c.width = innerWidth;
+            c.height = innerHeight
+        }
+    </script>
+
+</body>
+
+</html>
